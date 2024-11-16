@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload & View Media Files</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOMt23cez/6RzA8H0aNkQG6Yo8iTHm6v5eUtHpd9" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            padding-top: 20px;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .file-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .file-item {
+            width: 150px;
+            text-align: center;
+            background-color: #fafafa;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .file-item:hover {
+            transform: scale(1.05);
+        }
+        .file-item img, .file-item video, .file-item audio {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .file-item span {
+            display: block;
+            margin-top: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        .file-item .icon {
+            font-size: 24px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        .file-item .file-name {
+            font-size: 14px;
+            color: #666;
+        }
+        .upload-form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .upload-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            width: 120px;
+            text-align: center;
+        }
+        .upload-btn:hover {
+            background-color: #0056b3;
+        }
+        input[type="file"] {
+            margin-top: 10px;
+            padding: 10px;
+        }
+        #file-preview {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .file-preview-container {
+            border: 2px dashed #007bff;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .file-preview-container img,
+        .file-preview-container video,
+        .file-preview-container audio {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Upload and View Media Files</h1>
+
+    <!-- File upload form -->
+    <div class="upload-form">
+        <form th:action="@{/upload}" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" id="file-input" required onchange="previewFile()">
+            <button type="submit" class="upload-btn">Upload</button>
+        </form>
+
+        <!-- File Preview Section -->
+        <div id="file-preview" class="file-preview-container">
+            <p>Preview:</p>
+            <div id="preview-image" style="display:none;"></div>
+            <div id="preview-video" style="display:none;"></div>
+            <div id="preview-audio" style="display:none;"></div>
+        </div>
+
+        <div th:if="${error}" style="color: red; margin-top: 10px;">
+            <p th:text="${error}"></p>
+        </div>
+    </div>
+
+    <!-- List of uploaded media files -->
+    <div class="file-list" th:each="filename : ${mediaFiles}">
+        <div class="file-item">
+            <!-- Show icon based on file type -->
+            <div class="icon" th:if="${filename.endsWith('.jpg') or filename.endsWith('.jpeg') or filename.endsWith('.png')}">
+                <i class="fas fa-image"></i>
+            </div>
+            <div class="icon" th:if="${filename.endsWith('.mp4') or filename.endsWith('.webm') or filename.endsWith('.ogg')}">
+                <i class="fas fa-video"></i>
+            </div>
+            <div class="icon" th:if="${filename.endsWith('.mp3') or filename.endsWith('.wav') or filename.endsWith('.ogg')}">
+                <i class="fas fa-music"></i>
+            </div>
+
+            <!-- Preview or play media based on type -->
+            <div th:if="${filename.endsWith('.jpg') or filename.endsWith('.jpeg') or filename.endsWith('.png')}">
+                <img th:src="@{'/serve/' + ${filename}}" alt="Image preview">
+            </div>
+            <div th:if="${filename.endsWith('.mp4') or filename.endsWith('.webm') or filename.endsWith('.ogg')}">
+                <video controls>
+                    <source th:src="@{'/serve/' + ${filename}}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <div th:if="${filename.endsWith('.mp3') or filename.endsWith('.wav') or filename.endsWith('.ogg')}">
+                <audio controls>
+                    <source th:src="@{'/serve/' + ${filename}}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+
+            <!-- File Name -->
+            <span th:text="${filename}" class="file-name"></span>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewFile() {
+        const fileInput = document.getElementById('file-input');
+        const file = fileInput.files[0];
+        const previewContainer = document.getElementById('file-preview');
+        const previewImage = document.getElementById('preview-image');
+        const previewVideo = document.getElementById('preview-video');
+        const previewAudio = document.getElementById('preview-audio');
+
+        // Reset preview containers
+        previewImage.style.display = 'none';
+        previewVideo.style.display = 'none';
+        previewAudio.style.display = 'none';
+
+        // Show preview container
+        previewContainer.style.display = 'block';
+
+        // Show preview based on file type
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            if (file.type.startsWith('image/')) {
+                previewImage.style.display = 'block';
+                previewImage.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+            } else if (file.type.startsWith('video/')) {
+                previewVideo.style.display = 'block';
+                previewVideo.innerHTML = `<video controls><source src="${e.target.result}" type="${file.type}"></video>`;
+            } else if (file.type.startsWith('audio/')) {
+                previewAudio.style.display = 'block';
+                previewAudio.innerHTML = `<audio controls><source src="${e.target.result}" type="${file.type}"></audio>`;
+            }
+        };
+
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
+
+</body>
+</html>

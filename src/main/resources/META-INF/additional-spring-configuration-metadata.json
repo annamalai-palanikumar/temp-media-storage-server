@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "media.upload-dir",
+    "type": "java.lang.String",
+    "description": "A description for 'media.upload-dir'"
+  },
+  {
+    "name": "media.allowed-types",
+    "type": "java.lang.String",
+    "description": "A description for 'media.allowed-types'"
+  }
+]}

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Media Files</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOMt23cez/6RzA8H0aNkQG6Yo8iTHm6v5eUtHpd9" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            padding-top: 20px;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .file-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .file-item {
+            width: 150px;
+            text-align: center;
+            background-color: #fafafa;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .file-item:hover {
+            transform: scale(1.05);
+        }
+        .file-item img, .file-item video, .file-item audio {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .file-item span {
+            display: block;
+            margin-top: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        .file-item .icon {
+            font-size: 24px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        .file-item .file-name {
+            font-size: 14px;
+            color: #666;
+        }
+        .back-btn {
+            display: block;
+            margin: 20px auto;
+            text-align: center;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            width: 120px;
+            text-align: center;
+        }
+        .back-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>All Uploaded Media Files</h1>
+
+    <!-- Back to upload page button -->
+    <a href="/" class="back-btn">Upload More</a>
+
+    <div class="file-list" th:each="filename : ${mediaFiles}">
+        <div class="file-item">
+            <!-- Show icon based on file type -->
+            <div class="icon" th:if="${filename.endsWith('.jpg') or filename.endsWith('.jpeg') or filename.endsWith('.png')}">
+                <i class="fas fa-image"></i>
+            </div>
+            <div class="icon" th:if="${filename.endsWith('.mp4') or filename.endsWith('.webm') or filename.endsWith('.ogg')}">
+                <i class="fas fa-video"></i>
+            </div>
+            <div class="icon" th:if="${filename.endsWith('.mp3') or filename.endsWith('.wav') or filename.endsWith('.ogg')}">
+                <i class="fas fa-music"></i>
+            </div>
+
+            <!-- Preview or play media based on type -->
+            <div th:if="${filename.endsWith('.jpg') or filename.endsWith('.jpeg') or filename.endsWith('.png')}">
+                <img th:src="@{'/serve/' + ${filename}}" alt="Image preview">
+            </div>
+            <div th:if="${filename.endsWith('.mp4') or filename.endsWith('.webm') or filename.endsWith('.ogg')}">
+                <video controls>
+                    <source th:src="@{'/serve/' + ${filename}}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <div th:if="${filename.endsWith('.mp3') or filename.endsWith('.wav') or filename.endsWith('.ogg')}">
+                <audio controls>
+                    <source th:src="@{'/serve/' + ${filename}}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+
+            <!-- File Name -->
+            <span th:text="${filename}" class="file-name"></span>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
